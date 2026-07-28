@@ -263,3 +263,52 @@ if __name__ == "__main__":
     # )
 
     plt.show()
+
+def plot_zernike_surface(
+    j: int,
+    samples: int = 201,
+) -> Figure:
+    """
+    Plot one ANSI/OSA Zernike mode as a 3D wavefront surface.
+    """
+    modes = ansi_modes(max_radial_order=5)
+
+    if not 0 <= j < len(modes):
+        raise ValueError("For the first 21 modes, j must be from 0 to 20.")
+
+    _, n, m = modes[j]
+    x, y, rho, theta = pupil_grid(samples)
+
+    values = zernike(n, m, rho, theta)
+    masked_values = np.ma.masked_invalid(values)
+
+    figure = plt.figure(figsize=(8, 7))
+    axis = figure.add_subplot(projection="3d")
+
+    surface = axis.plot_surface(
+        x,
+        y,
+        masked_values,
+        cmap="RdBu_r",
+        linewidth=0,
+        antialiased=True,
+        rcount=100,
+        ccount=100,
+    )
+
+    axis.set_title(
+        rf"ANSI $j={j}$: $Z_{{{n}}}^{{{m}}}$"
+    )
+    axis.set_xlabel("Normalized pupil x")
+    axis.set_ylabel("Normalized pupil y")
+    axis.set_zlabel("Normalized wavefront value")
+    axis.set_box_aspect((1.0, 1.0, 0.65))
+
+    figure.colorbar(
+        surface,
+        ax=axis,
+        shrink=0.65,
+        pad=0.10,
+    )
+
+    return figure
