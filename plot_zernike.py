@@ -250,19 +250,7 @@ def plot_first_21_zernikes(
     )
 
     return figure
-
-
-if __name__ == "__main__":
-    atlas = plot_first_21_zernikes(samples=401)
-
-    # Uncomment this to save a high-resolution copy:
-    # atlas.savefig(
-    #     "first_21_zernike_polynomials.png",
-    #     dpi=300,
-    #     bbox_inches="tight",
-    # )
-
-    plt.show()
+    
 
 def plot_zernike_surface(
     j: int,
@@ -312,3 +300,16 @@ def plot_zernike_surface(
     )
 
     return figure
+
+
+if __name__ == "__main__":
+    atlas = plot_first_21_zernikes(samples=401)
+
+    # Uncomment this to save a high-resolution copy:
+    # atlas.savefig(
+    #     "first_21_zernike_polynomials.png",
+    #     dpi=300,
+    #     bbox_inches="tight",
+    # )
+
+    plt.show()
