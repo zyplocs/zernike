@@ -1,0 +1,22 @@
+# Virtual environments
+.venv/
+
+# Editor / IDE (machine-specific settings stay local)
+.vscode/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Generated figures
+*.png
+*.pdf
+*.svg
