@@ -211,7 +211,7 @@ def plot_first_21_zernikes(
             values,
             origin="lower",
             extent=(-1.0, 1.0, -1.0, 1.0),
-            cmap="RdBu_r",
+            cmap="gray",
             norm=color_normalization,
             interpolation="bilinear",
         )
@@ -225,6 +225,8 @@ def plot_first_21_zernikes(
             )
         )
 
+        axis.set_xlim(-1.02, 1.02)
+        axis.set_ylim(-1.02, 1.02)
         axis.set_title(
             rf"$j={j}$"
             "\n"
@@ -279,7 +281,7 @@ def plot_zernike_surface(
         x,
         y,
         masked_values,
-        cmap="RdBu_r",
+        cmap="gray",
         linewidth=0,
         antialiased=True,
         rcount=100,
