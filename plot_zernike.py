@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import argparse
 from math import factorial, sqrt
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,10 +20,10 @@ def ansi_index(n: int, m: int) -> int:
     Convert the double index (n, m) to the ANSI/OSA single index j.
 
     Examples:
-        (0,  0) -> j = 0   piston
-        (1, -1) -> j = 1   vertical tilt
-        (1,  1) -> j = 2   horizontal tilt
-        (2,  0) -> j = 4   defocus
+      -  (0,  0) -> j = 0 :  piston
+      -  (1, -1) -> j = 1 :  vertical tilt
+      -  (1,  1) -> j = 2 :  horizontal tilt
+      -  (2,  0) -> j = 4 :  defocus
     """
     if n < 0:
         raise ValueError("n must be nonnegative.")
@@ -198,7 +200,7 @@ def plot_first_21_zernikes(
 
         # Produces columns such as:
         # n = 0:             5
-        # n = 1:           4, 6
+        # n = 1:           4,  6
         # n = 2:          3, 5, 7
         # ...
         column = 5 - n + 2 * position_within_row
@@ -250,7 +252,7 @@ def plot_first_21_zernikes(
     )
 
     return figure
-    
+
 
 def plot_zernike_surface(
     j: int,
@@ -302,14 +304,109 @@ def plot_zernike_surface(
     return figure
 
 
+def build_parser() -> argparse.ArgumentParser:
+    """
+    Build the command-line interface.
+
+    Two subcommands mirror the two plotting functions:
+        atlas    -> plot_first_21_zernikes
+        surface  -> plot_zernike_surface
+    """
+    parser = argparse.ArgumentParser(
+        prog="zernike",
+        description=(
+            "Visualize Zernike polynomials over the unit pupil "
+            "(ANSI/OSA single-index convention)."
+        ),
+    )
+
+    subparsers = parser.add_subparsers(
+        dest="command",
+        required=True,
+    )
+
+    atlas_parser = subparsers.add_parser(
+        "atlas",
+        help="Plot the first 21 modes (j = 0 through 20) as a pyramid.",
+    )
+    atlas_parser.add_argument(
+        "--samples",
+        type=int,
+        default=401,
+        help="Grid resolution per axis (default: %(default)s).",
+    )
+
+    surface_parser = subparsers.add_parser(
+        "surface",
+        help="Plot one mode as a 3D wavefront surface.",
+    )
+    surface_parser.add_argument(
+        "j",
+        type=int,
+        help="ANSI/OSA index of the mode to plot (0 through 20).",
+    )
+    surface_parser.add_argument(
+        "--samples",
+        type=int,
+        default=201,
+        help="Grid resolution per axis (default: %(default)s).",
+    )
+
+    # Options shared by both subcommands.
+    for subparser in (atlas_parser, surface_parser):
+        subparser.add_argument(
+            "--save",
+            type=Path,
+            default=None,
+            metavar="PATH",
+            help="Save the figure to PATH instead of only displaying it.",
+        )
+        subparser.add_argument(
+            "--dpi",
+            type=int,
+            default=300,
+            help="Resolution for --save, in dots per inch (default: %(default)s).",
+        )
+        subparser.add_argument(
+            "--no-show",
+            action="store_true",
+            help="Do not open an interactive window (useful with --save).",
+        )
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    """
+    Entry point: parse arguments, build the figure, then save and/or show.
+    """
+    parser = build_parser()
+    arguments = parser.parse_args(argv)
+
+    try:
+        if arguments.command == "atlas":
+            figure = plot_first_21_zernikes(samples=arguments.samples)
+        else:
+            figure = plot_zernike_surface(
+                arguments.j,
+                samples=arguments.samples,
+            )
+    except ValueError as error:
+        # Domain errors (bad j, bad samples) become clean usage
+        # messages instead of tracebacks.
+        parser.error(str(error))
+
+    if arguments.save is not None:
+        figure.savefig(
+            arguments.save,
+            dpi=arguments.dpi,
+            bbox_inches="tight",
+        )
+        print(f"Saved figure to {arguments.save}")
+
+    if not arguments.no_show:
+        plt.show()
+
+
 if __name__ == "__main__":
-    atlas = plot_first_21_zernikes(samples=401)
-
-    # Uncomment this to save a high-resolution copy:
-    # atlas.savefig(
-    #     "first_21_zernike_polynomials.png",
-    #     dpi=300,
-    #     bbox_inches="tight",
-    # )
-
-    plt.show()
+    main()

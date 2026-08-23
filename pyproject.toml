@@ -9,6 +9,9 @@ dependencies = [
     "numpy>=2.5,<3",
 ]
 
+[project.scripts]
+zernike = "plot_zernike:main"
+
 [dependency-groups]
 dev = [
     "ipython>=9",
